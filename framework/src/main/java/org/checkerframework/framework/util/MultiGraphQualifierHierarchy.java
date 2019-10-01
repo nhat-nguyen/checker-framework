@@ -1,13 +1,7 @@
 package org.checkerframework.framework.util;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Name;
 import org.checkerframework.dataflow.qual.Pure;
@@ -100,6 +94,7 @@ public class MultiGraphQualifierHierarchy extends QualifierHierarchy {
                     this.polyQualifiers.put(null, qual);
                 } else {
                     // use given top (which might be PolymorphicQualifier) as key
+                    assert pqtop instanceof AnnotationBuilder.AnnotationMirrorWrapper;
                     this.polyQualifiers.put(pqtop, qual);
                 }
             } else {
@@ -584,6 +579,7 @@ public class MultiGraphQualifierHierarchy extends QualifierHierarchy {
 
         for (Map.Entry<AnnotationMirror, AnnotationMirror> kv : polyQualifiers.entrySet()) {
             AnnotationMirror declTop = kv.getKey();
+            assert declTop == null || declTop instanceof AnnotationBuilder.AnnotationMirrorWrapper;
             AnnotationMirror polyQualifier = kv.getValue();
             if (declTop == null
                     || // PolyAll

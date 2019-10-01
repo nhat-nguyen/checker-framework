@@ -7,7 +7,8 @@ dependencies {
     // https://mvnrepository.com/artifact/org.plumelib/plume-util
     // Keep version number in sync with ../maven-artifacts/release/javacutilReleasePom.xml .
     compile 'org.plumelib:plume-util:1.0.10'
-
     compile configurations.javacJar
+    // https://mvnrepository.com/artifact/com.google.auto/auto-common
+    compile group: 'com.google.auto', name: 'auto-common', version: '0.10'
     compileOnly project(':checker-qual')
 }

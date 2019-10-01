@@ -10,19 +10,7 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Target;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ElementKind;
@@ -171,32 +159,37 @@ public class AnnotationUtils {
      * @return true iff c1 and c2 contain the same annotations, according to {@link
      *     #areSame(AnnotationMirror, AnnotationMirror)}
      */
+    @SuppressWarnings("unchecked")
     public static boolean areSame(
             Collection<? extends AnnotationMirror> c1, Collection<? extends AnnotationMirror> c2) {
-        if (c1.size() != c2.size()) {
-            return false;
-        }
-        if (c1.size() == 1) {
-            return areSame(c1.iterator().next(), c2.iterator().next());
-        }
-
-        Set<AnnotationMirror> s1 = createAnnotationSet();
-        Set<AnnotationMirror> s2 = createAnnotationSet();
-        s1.addAll(c1);
-        s2.addAll(c2);
-
-        // depend on the fact that Set is an ordered set.
-        Iterator<AnnotationMirror> iter1 = s1.iterator();
-        Iterator<AnnotationMirror> iter2 = s2.iterator();
-
-        while (iter1.hasNext()) {
-            AnnotationMirror anno1 = iter1.next();
-            AnnotationMirror anno2 = iter2.next();
-            if (!areSame(anno1, anno2)) {
-                return false;
-            }
-        }
-        return true;
+        assert c1 instanceof Set && c2 instanceof Set;
+        Set<? extends AnnotationMirror> s1 = (Set<? extends AnnotationMirror>) c1;
+        Set<? extends AnnotationMirror> s2 = (Set<? extends AnnotationMirror>) c2;
+        return c1.equals(c2);
+        //        if (c1.size() != c2.size()) {
+        //            return false;
+        //        }
+        //        if (c1.size() == 1) {
+        //            return areSame(c1.iterator().next(), c2.iterator().next());
+        //        }
+        //
+        //        Set<AnnotationMirror> s1 = createAnnotationSet();
+        //        Set<AnnotationMirror> s2 = createAnnotationSet();
+        //        s1.addAll(c1);
+        //        s2.addAll(c2);
+        //
+        //        // depend on the fact that Set is an ordered set.
+        //        Iterator<AnnotationMirror> iter1 = s1.iterator();
+        //        Iterator<AnnotationMirror> iter2 = s2.iterator();
+        //
+        //        while (iter1.hasNext()) {
+        //            AnnotationMirror anno1 = iter1.next();
+        //            AnnotationMirror anno2 = iter2.next();
+        //            if (!areSame(anno1, anno2)) {
+        //                return false;
+        //            }
+        //        }
+        //        return true;
     }
 
     /**
@@ -209,7 +202,8 @@ public class AnnotationUtils {
      */
     public static boolean containsSame(
             Collection<? extends AnnotationMirror> c, AnnotationMirror anno) {
-        return getSame(c, anno) != null;
+        assert anno instanceof AnnotationBuilder.AnnotationMirrorWrapper;
+        return c.contains(anno);
     }
 
     /**
@@ -222,6 +216,7 @@ public class AnnotationUtils {
      */
     public static AnnotationMirror getSame(
             Collection<? extends AnnotationMirror> c, AnnotationMirror anno) {
+        assert c != null;
         for (AnnotationMirror an : c) {
             if (AnnotationUtils.areSame(an, anno)) {
                 return an;
@@ -368,7 +363,7 @@ public class AnnotationUtils {
      * @return a new map with {@link AnnotationMirror} as key
      */
     public static <V> Map<AnnotationMirror, V> createAnnotationMap() {
-        return new TreeMap<>(annotationOrdering());
+        return new HashMap<>();
     }
 
     /**
@@ -380,7 +375,7 @@ public class AnnotationUtils {
      * @return a new set to store {@link AnnotationMirror} as element
      */
     public static Set<AnnotationMirror> createAnnotationSet() {
-        return new TreeSet<>(annotationOrdering());
+        return new HashSet<>();
     }
 
     /**
