@@ -1,8 +1,5 @@
 package org.checkerframework.javacutil;
 
-import com.google.auto.common.AnnotationValues;
-import com.google.auto.common.MoreTypes;
-import com.google.common.base.Equivalence;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -181,8 +178,7 @@ public class AnnotationBuilder {
             return null;
         }
         AnnotationMirror result =
-                AnnotationMirrorWrapper.createFrom(
-                        new CheckerFrameworkAnnotationMirror(annoType, Collections.emptyMap()));
+                new CheckerFrameworkAnnotationMirror(annoType, Collections.emptyMap());
         annotationsFromNames.put(name, result);
         return result;
     }
@@ -203,8 +199,7 @@ public class AnnotationBuilder {
     public AnnotationMirror build() {
         assertNotBuilt();
         wasBuilt = true;
-        return AnnotationMirrorWrapper.createFrom(
-                new CheckerFrameworkAnnotationMirror(annotationType, elementValues));
+        return new CheckerFrameworkAnnotationMirror(annotationType, elementValues);
     }
 
     /**
@@ -635,80 +630,6 @@ public class AnnotationBuilder {
             return toStringVal;
 
             // return "@" + annotationType + "(" + elementValues + ")";
-        }
-    }
-
-    public static final class AnnotationMirrorWrapper implements AnnotationMirror {
-
-        private static final Equivalence<AnnotationMirror> ANNOTATION_MIRROR_EQUIVALENCE =
-                new Equivalence<AnnotationMirror>() {
-                    @SuppressWarnings("unchecked")
-                    @Override
-                    protected boolean doEquivalent(AnnotationMirror left, AnnotationMirror right) {
-                        return MoreTypes.equivalence()
-                                        .equivalent(
-                                                left.getAnnotationType(), right.getAnnotationType())
-                                && AnnotationValues.equivalence()
-                                        .pairwise()
-                                        .equivalent(
-                                                ((Map<ExecutableElement, AnnotationValue>)
-                                                                AnnotationUtils
-                                                                        .getElementValuesWithDefaults(
-                                                                                left))
-                                                        .values(),
-                                                ((Map<ExecutableElement, AnnotationValue>)
-                                                                AnnotationUtils
-                                                                        .getElementValuesWithDefaults(
-                                                                                right))
-                                                        .values());
-                    }
-
-                    @Override
-                    protected int doHash(AnnotationMirror annotation) {
-                        DeclaredType type = annotation.getAnnotationType();
-                        @SuppressWarnings("unchecked")
-                        Iterable<AnnotationValue> annotationValues =
-                                ((Map<ExecutableElement, AnnotationValue>)
-                                                AnnotationUtils.getElementValuesWithDefaults(
-                                                        annotation))
-                                        .values();
-                        return Arrays.hashCode(
-                                new int[] {
-                                    MoreTypes.equivalence().hash(type),
-                                    AnnotationValues.equivalence().pairwise().hash(annotationValues)
-                                });
-                    }
-                };
-
-        private final AnnotationMirror underlyingAnnotationMirror;
-
-        private AnnotationMirrorWrapper(AnnotationMirror underlyingAnnotationMirror) {
-            this.underlyingAnnotationMirror = underlyingAnnotationMirror;
-        }
-
-        public static AnnotationMirrorWrapper createFrom(AnnotationMirror annotationMirror) {
-            return new AnnotationMirrorWrapper(annotationMirror);
-        }
-
-        @Override
-        public DeclaredType getAnnotationType() {
-            return this.underlyingAnnotationMirror.getAnnotationType();
-        }
-
-        @Override
-        public Map<? extends ExecutableElement, ? extends AnnotationValue> getElementValues() {
-            return this.underlyingAnnotationMirror.getElementValues();
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            return other instanceof AnnotationMirror
-                    && AnnotationUtils.areSame(this, (AnnotationMirror) other);
-        }
-
-        @Override
-        public int hashCode() {
-            return ANNOTATION_MIRROR_EQUIVALENCE.hash(this.underlyingAnnotationMirror);
         }
     }
 

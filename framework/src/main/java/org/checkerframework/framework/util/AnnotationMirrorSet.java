@@ -1,6 +1,9 @@
 package org.checkerframework.framework.util;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeSet;
 import javax.lang.model.element.AnnotationMirror;
 import org.checkerframework.javacutil.AnnotationUtils;
 
@@ -19,7 +22,7 @@ import org.checkerframework.javacutil.AnnotationUtils;
  * method; therefore, the existing implementations of Set cannot be used.
  */
 public class AnnotationMirrorSet implements Set<AnnotationMirror> {
-    private Set<AnnotationMirror> shadowSet = new HashSet<>();
+    private Set<AnnotationMirror> shadowSet = new TreeSet<>(AnnotationUtils.annotationOrdering());
 
     /** Default constructor. */
     public AnnotationMirrorSet() {}
@@ -41,7 +44,8 @@ public class AnnotationMirrorSet implements Set<AnnotationMirror> {
 
     @Override
     public boolean contains(Object o) {
-        return shadowSet.contains(o);
+        return o instanceof AnnotationMirror
+                && AnnotationUtils.containsSame(shadowSet, (AnnotationMirror) o);
     }
 
     @Override
@@ -61,32 +65,67 @@ public class AnnotationMirrorSet implements Set<AnnotationMirror> {
 
     @Override
     public boolean add(AnnotationMirror annotationMirror) {
-        return shadowSet.add(annotationMirror);
+        if (contains(annotationMirror)) {
+            return false;
+        }
+        shadowSet.add(annotationMirror);
+        return true;
     }
 
     @Override
     public boolean remove(Object o) {
-        return shadowSet.remove(o);
+        if (o instanceof AnnotationMirror) {
+            AnnotationMirror found = AnnotationUtils.getSame(shadowSet, (AnnotationMirror) o);
+            return found != null && shadowSet.remove(found);
+        }
+        return false;
     }
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        return shadowSet.containsAll(c);
+        for (Object o : c) {
+            if (!contains(o)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public boolean addAll(Collection<? extends AnnotationMirror> c) {
-        return shadowSet.addAll(c);
+        boolean result = true;
+        for (AnnotationMirror a : c) {
+            if (!add(a)) {
+                result = false;
+            }
+        }
+        return result;
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return shadowSet.retainAll(c);
+        Set<AnnotationMirror> newSet = new TreeSet<>(AnnotationUtils.annotationOrdering());
+        for (Object o : c) {
+            if (contains(o)) {
+                newSet.add((AnnotationMirror) o);
+            }
+        }
+        if (newSet.size() != shadowSet.size()) {
+            shadowSet = newSet;
+            return true;
+        }
+        return false;
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return shadowSet.removeAll(c);
+        boolean result = true;
+        for (Object a : c) {
+            if (!remove(a)) {
+                result = false;
+            }
+        }
+        return result;
     }
 
     @Override

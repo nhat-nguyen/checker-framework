@@ -320,19 +320,17 @@ public abstract class CFAbstractValue<V extends CFAbstractValue<V>> implements A
     }
 
     private V upperBound(@Nullable V other, boolean shouldWiden) {
-        if (other == null || this == other) {
+        if (other == null) {
             @SuppressWarnings("unchecked")
             V v = (V) this;
             return v;
         }
-
         ProcessingEnvironment processingEnv = analysis.getTypeFactory().getProcessingEnv();
         Set<AnnotationMirror> lub = AnnotationUtils.createAnnotationSet();
         TypeMirror lubTypeMirror =
                 TypesUtils.leastUpperBound(
                         this.getUnderlyingType(), other.getUnderlyingType(), processingEnv);
 
-        // Try avoid allocating this
         LubVisitor lubVisitor =
                 new LubVisitor(
                         lubTypeMirror,

@@ -2,8 +2,15 @@ package org.checkerframework.framework.type;
 
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import java.lang.annotation.Annotation;
-import java.util.*;
-import javax.lang.model.element.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
@@ -517,8 +524,7 @@ public abstract class AnnotatedTypeMirror {
             throw new BugInCF("AnnotatedTypeMirror.addAnnotation: null argument.");
         }
         if (atypeFactory.isSupportedQualifier(a)) {
-            //            this.annotations.add(a);
-            this.annotations.add(AnnotationBuilder.AnnotationMirrorWrapper.createFrom(a));
+            this.annotations.add(a);
         } else {
             AnnotationMirror aliased = atypeFactory.canonicalAnnotation(a);
             if (atypeFactory.isSupportedQualifier(aliased)) {

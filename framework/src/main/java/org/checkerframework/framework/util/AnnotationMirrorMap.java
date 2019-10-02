@@ -1,6 +1,9 @@
 package org.checkerframework.framework.util;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import javax.lang.model.element.AnnotationMirror;
 import org.checkerframework.javacutil.AnnotationUtils;
 
@@ -25,7 +28,7 @@ public class AnnotationMirrorMap<V> implements Map<AnnotationMirror, V> {
 
     /** Default constructor. */
     public AnnotationMirrorMap() {
-        this.shadowMap = new HashMap<>();
+        this.shadowMap = new TreeMap<>(AnnotationUtils.annotationOrdering());
     }
 
     /**
@@ -50,7 +53,11 @@ public class AnnotationMirrorMap<V> implements Map<AnnotationMirror, V> {
 
     @Override
     public boolean containsKey(Object key) {
-        return shadowMap.containsKey(key);
+        if (key instanceof AnnotationMirror) {
+            return AnnotationUtils.containsSame(shadowMap.keySet(), (AnnotationMirror) key);
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -60,22 +67,41 @@ public class AnnotationMirrorMap<V> implements Map<AnnotationMirror, V> {
 
     @Override
     public V get(Object key) {
-        return shadowMap.get(key);
+        if (key instanceof AnnotationMirror) {
+            AnnotationMirror keyAnno =
+                    AnnotationUtils.getSame(shadowMap.keySet(), (AnnotationMirror) key);
+            if (keyAnno != null) {
+                return shadowMap.get(keyAnno);
+            }
+        }
+        return null;
     }
 
     @Override
     public V put(AnnotationMirror key, V value) {
-        return shadowMap.put(key, value);
+        V pre = get(key);
+        remove(key);
+        shadowMap.put(key, value);
+        return pre;
     }
 
     @Override
     public V remove(Object key) {
-        return shadowMap.remove(key);
+        if (key instanceof AnnotationMirror) {
+            AnnotationMirror keyAnno =
+                    AnnotationUtils.getSame(shadowMap.keySet(), (AnnotationMirror) key);
+            if (keyAnno != null) {
+                return shadowMap.remove(keyAnno);
+            }
+        }
+        return null;
     }
 
     @Override
     public void putAll(Map<? extends AnnotationMirror, ? extends V> m) {
-        shadowMap.putAll(m);
+        for (Entry<? extends AnnotationMirror, ? extends V> entry : m.entrySet()) {
+            put(entry.getKey(), entry.getValue());
+        }
     }
 
     @Override
