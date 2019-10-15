@@ -766,7 +766,7 @@ public class AnnotationUtils {
             result.addAll(map.get(key));
             result.addAll(newQual);
         }
-        map.put(key, new SortedRandomAccessAnnotationMirrorSet(result));
+        map.put(key, SortedRandomAccessAnnotationMirrorSet.unmodifiable(result));
     }
 
     /**
