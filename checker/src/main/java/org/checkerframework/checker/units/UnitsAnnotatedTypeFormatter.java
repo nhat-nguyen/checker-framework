@@ -75,7 +75,8 @@ public class UnitsAnnotatedTypeFormatter extends DefaultAnnotatedTypeFormatter {
             }
 
             return super.formatAnnotationString(
-                    SortedRandomAccessAnnotationMirrorSet.unmodifiable(trimmedAnnoSet), printInvisible);
+                    SortedRandomAccessAnnotationMirrorSet.unmodifiable(trimmedAnnoSet),
+                    printInvisible);
         }
     }
 }
