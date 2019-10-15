@@ -11,6 +11,7 @@ import org.checkerframework.framework.type.DefaultAnnotatedTypeFormatter;
 import org.checkerframework.framework.util.AnnotationFormatter;
 import org.checkerframework.framework.util.DefaultAnnotationFormatter;
 import org.checkerframework.javacutil.AnnotationUtils;
+import org.checkerframework.javacutil.SortedRandomAccessAnnotationMirrorSet;
 
 public class UnitsAnnotatedTypeFormatter extends DefaultAnnotatedTypeFormatter {
     protected final BaseTypeChecker checker;
@@ -74,8 +75,7 @@ public class UnitsAnnotatedTypeFormatter extends DefaultAnnotatedTypeFormatter {
                 trimmedAnnoSet.add(anno);
             }
 
-            return super.formatAnnotationString(
-                    Collections.unmodifiableSet(trimmedAnnoSet), printInvisible);
+            return super.formatAnnotationString(new SortedRandomAccessAnnotationMirrorSet(trimmedAnnoSet), printInvisible);
         }
     }
 }
