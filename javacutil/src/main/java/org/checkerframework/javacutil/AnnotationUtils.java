@@ -368,7 +368,8 @@ public class AnnotationUtils {
      * @return a new map with {@link AnnotationMirror} as key
      */
     public static <V> Map<AnnotationMirror, V> createAnnotationMap() {
-        return new TreeMap<>(annotationOrdering());
+//        return new TreeMap<>(annotationOrdering());
+        return new SortedRandomAccessAnnotationMirrorMap<>();
     }
 
     /**
@@ -380,7 +381,8 @@ public class AnnotationUtils {
      * @return a new set to store {@link AnnotationMirror} as element
      */
     public static Set<AnnotationMirror> createAnnotationSet() {
-        return new TreeSet<>(annotationOrdering());
+        //        return new TreeSet<>(annotationOrdering());
+        return new SortedRandomAccessAnnotationMirrorSet();
     }
 
     /**
