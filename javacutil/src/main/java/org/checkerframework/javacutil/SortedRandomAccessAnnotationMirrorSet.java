@@ -1,9 +1,10 @@
 package org.checkerframework.javacutil;
 
-import javax.lang.model.element.AnnotationMirror;
 import java.util.*;
+import javax.lang.model.element.AnnotationMirror;
 
-public class SortedRandomAccessAnnotationMirrorSet implements List<AnnotationMirror>, Set<AnnotationMirror>, RandomAccess {
+public class SortedRandomAccessAnnotationMirrorSet
+        implements List<AnnotationMirror>, Set<AnnotationMirror>, RandomAccess {
 
     private final Comparator<AnnotationMirror> comparator;
     private TreeSet<AnnotationMirror> baseline;
@@ -93,7 +94,7 @@ public class SortedRandomAccessAnnotationMirrorSet implements List<AnnotationMir
         }
 
         int initialSize = shadowList.size();
-        int index = Collections.binarySearch(shadowList,(AnnotationMirror) o, comparator);
+        int index = Collections.binarySearch(shadowList, (AnnotationMirror) o, comparator);
         if (index < 0) {
             assertSame();
             return false;
@@ -238,10 +239,6 @@ public class SortedRandomAccessAnnotationMirrorSet implements List<AnnotationMir
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        for (AnnotationMirror anno : shadowList) {
-            builder.append(String.valueOf(anno)).append(",");
-        }
-        return builder.toString();
+        return shadowList.toString();
     }
 }
