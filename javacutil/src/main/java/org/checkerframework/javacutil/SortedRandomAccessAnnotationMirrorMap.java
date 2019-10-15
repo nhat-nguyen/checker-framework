@@ -7,7 +7,8 @@ public class SortedRandomAccessAnnotationMirrorMap<V>
         implements Map<AnnotationMirror, V>, RandomAccess {
 
     @SuppressWarnings("serial")
-    private static final class SortedArraySet extends ArrayList<AnnotationMirror> implements Set<AnnotationMirror>, RandomAccessSet<AnnotationMirror> {
+    private static final class SortedArraySet extends ArrayList<AnnotationMirror>
+            implements Set<AnnotationMirror>, RandomAccessSet<AnnotationMirror> {
         @Override
         public boolean contains(Object o) {
             if (!(o instanceof AnnotationMirror)) {
@@ -18,7 +19,8 @@ public class SortedRandomAccessAnnotationMirrorMap<V>
         }
     }
 
-    private static final Comparator<AnnotationMirror> comparator = AnnotationUtils.annotationOrdering();
+    private static final Comparator<AnnotationMirror> comparator =
+            AnnotationUtils.annotationOrdering();
     private SortedArraySet keys;
     private ArrayList<V> values;
 

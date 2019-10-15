@@ -4,7 +4,10 @@ import java.util.*;
 import javax.lang.model.element.AnnotationMirror;
 
 public class SortedRandomAccessAnnotationMirrorSet
-        implements List<AnnotationMirror>, Set<AnnotationMirror>, RandomAccess, RandomAccessSet<AnnotationMirror> {
+        implements List<AnnotationMirror>,
+                Set<AnnotationMirror>,
+                RandomAccess,
+                RandomAccessSet<AnnotationMirror> {
 
     private final Comparator<AnnotationMirror> comparator;
     private TreeSet<AnnotationMirror> baseline;
