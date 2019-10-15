@@ -29,10 +29,10 @@ public class SortedRandomAccessAnnotationMirrorMap<V>
         values = new ArrayList<>();
     }
 
-//    public SortedRandomAccessAnnotationMirrorMap(Map<AnnotationMirror, ? extends V> copy) {
-//        this();
-//        this.putAll(copy);
-//    }
+    //    public SortedRandomAccessAnnotationMirrorMap(Map<AnnotationMirror, ? extends V> copy) {
+    //        this();
+    //        this.putAll(copy);
+    //    }
 
     @Override
     public int size() {
@@ -146,6 +146,7 @@ public class SortedRandomAccessAnnotationMirrorMap<V>
     @SuppressWarnings("serial")
     private static class UnmodifiableKeys extends SortedArraySet {
         private final SortedArraySet set;
+
         private UnmodifiableKeys(SortedArraySet set) {
             this.set = set;
         }
@@ -179,7 +180,6 @@ public class SortedRandomAccessAnnotationMirrorMap<V>
         public <T> T[] toArray(T[] ts) {
             return set.toArray(ts);
         }
-
 
         @Override
         public AnnotationMirror get(int i) {

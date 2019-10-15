@@ -17,10 +17,11 @@ public class SortedRandomAccessAnnotationMirrorSet
         shadowList = new ArrayList<>();
     }
 
-//    public SortedRandomAccessAnnotationMirrorSet(Collection<? extends AnnotationMirror> copy) {
-//        this();
-//        this.addAll(copy);
-//    }
+    //    public SortedRandomAccessAnnotationMirrorSet(Collection<? extends AnnotationMirror> copy)
+    // {
+    //        this();
+    //        this.addAll(copy);
+    //    }
 
     @Override
     public int size() {
@@ -212,6 +213,7 @@ public class SortedRandomAccessAnnotationMirrorSet
 
     private static class Unmodifiable extends SortedRandomAccessAnnotationMirrorSet {
         private final SortedRandomAccessAnnotationMirrorSet set;
+
         private Unmodifiable(SortedRandomAccessAnnotationMirrorSet set) {
             this.set = set;
         }
@@ -245,7 +247,6 @@ public class SortedRandomAccessAnnotationMirrorSet
         public <T> T[] toArray(T[] ts) {
             return set.toArray(ts);
         }
-
 
         @Override
         public AnnotationMirror get(int i) {
@@ -321,7 +322,6 @@ public class SortedRandomAccessAnnotationMirrorSet
         public void clear() {
             throw new RuntimeException("Illegal operation");
         }
-
 
         @Override
         public int lastIndexOf(Object o) {
