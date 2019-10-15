@@ -1,7 +1,6 @@
 package org.checkerframework.checker.units;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.util.Elements;
@@ -75,7 +74,8 @@ public class UnitsAnnotatedTypeFormatter extends DefaultAnnotatedTypeFormatter {
                 trimmedAnnoSet.add(anno);
             }
 
-            return super.formatAnnotationString(new SortedRandomAccessAnnotationMirrorSet(trimmedAnnoSet), printInvisible);
+            return super.formatAnnotationString(
+                    new SortedRandomAccessAnnotationMirrorSet(trimmedAnnoSet), printInvisible);
         }
     }
 }

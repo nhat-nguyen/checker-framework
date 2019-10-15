@@ -6,8 +6,6 @@ import com.sun.source.tree.ModifiersTree;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.model.JavacElements;
-
-import java.io.RandomAccessFile;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -202,10 +200,10 @@ public class AnnotationUtils {
         if (c instanceof RandomAccessSet) {
             @SuppressWarnings("unchecked")
             RandomAccessSet<AnnotationMirror> set = (RandomAccessSet<AnnotationMirror>) c;
-//            System.out.println(1);
+            //            System.out.println(1);
             return set.contains(anno);
         } else {
-//            System.out.println(0);
+            //            System.out.println(0);
         }
 
         return getSame(c, anno) != null;

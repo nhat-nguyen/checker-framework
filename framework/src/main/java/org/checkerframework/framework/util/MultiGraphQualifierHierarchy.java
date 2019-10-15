@@ -207,7 +207,8 @@ public class MultiGraphQualifierHierarchy extends QualifierHierarchy {
         this.bottoms = new SortedRandomAccessAnnotationMirrorSet(newbottoms);
         // TODO: make polyQualifiers immutable also?
 
-        this.supertypesTransitive = new SortedRandomAccessAnnotationMirrorMap<>(supertypesTransitive);
+        this.supertypesTransitive =
+                new SortedRandomAccessAnnotationMirrorMap<>(supertypesTransitive);
         Set<AnnotationMirror> typeQualifiers = AnnotationUtils.createAnnotationSet();
         typeQualifiers.addAll(supertypesTransitive.keySet());
         this.typeQualifiers = new SortedRandomAccessAnnotationMirrorSet(typeQualifiers);
