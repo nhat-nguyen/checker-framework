@@ -3,21 +3,33 @@ package org.checkerframework.javacutil;
 import java.util.*;
 import javax.lang.model.element.AnnotationMirror;
 
-public class SortedRandomAccessAnnotationMirrorMap<V> implements Map<AnnotationMirror, V>, RandomAccess {
+public class SortedRandomAccessAnnotationMirrorMap<V>
+        implements Map<AnnotationMirror, V>, RandomAccess {
 
     @SuppressWarnings("serial")
-     static final class SortedArraySet<T> extends ArrayList<T> implements Set<T> {
+    private static final class SortedArraySet extends ArrayList<AnnotationMirror> implements Set<AnnotationMirror>, RandomAccessSet<AnnotationMirror> {
+        @Override
+        public boolean contains(Object o) {
+            if (!(o instanceof AnnotationMirror)) {
+                return false;
+            }
 
+            return Collections.binarySearch(this, (AnnotationMirror) o, comparator) >= 0;
+        }
     }
 
-    private final Comparator<AnnotationMirror> comparator;
-    private SortedArraySet<AnnotationMirror> keys;
+    private static final Comparator<AnnotationMirror> comparator = AnnotationUtils.annotationOrdering();
+    private SortedArraySet keys;
     private ArrayList<V> values;
 
     public SortedRandomAccessAnnotationMirrorMap() {
-        comparator = AnnotationUtils.annotationOrdering();
-        keys = new SortedArraySet<>();
+        keys = new SortedArraySet();
         values = new ArrayList<>();
+    }
+
+    public SortedRandomAccessAnnotationMirrorMap(Map<AnnotationMirror, ? extends V> copy) {
+        this();
+        this.putAll(copy);
     }
 
     @Override

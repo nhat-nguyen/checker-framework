@@ -6,23 +6,13 @@ import com.sun.source.tree.ModifiersTree;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.model.JavacElements;
+
+import java.io.RandomAccessFile;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Target;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ElementKind;
@@ -209,6 +199,15 @@ public class AnnotationUtils {
      */
     public static boolean containsSame(
             Collection<? extends AnnotationMirror> c, AnnotationMirror anno) {
+        if (c instanceof RandomAccessSet) {
+            @SuppressWarnings("unchecked")
+            RandomAccessSet<AnnotationMirror> set = (RandomAccessSet<AnnotationMirror>) c;
+//            System.out.println(1);
+            return set.contains(anno);
+        } else {
+//            System.out.println(0);
+        }
+
         return getSame(c, anno) != null;
     }
 
@@ -368,7 +367,7 @@ public class AnnotationUtils {
      * @return a new map with {@link AnnotationMirror} as key
      */
     public static <V> Map<AnnotationMirror, V> createAnnotationMap() {
-//        return new TreeMap<>(annotationOrdering());
+        //        return new TreeMap<>(annotationOrdering());
         return new SortedRandomAccessAnnotationMirrorMap<>();
     }
 
@@ -769,7 +768,7 @@ public class AnnotationUtils {
             result.addAll(map.get(key));
             result.addAll(newQual);
         }
-        map.put(key, Collections.unmodifiableSet(result));
+        map.put(key, new SortedRandomAccessAnnotationMirrorSet(result));
     }
 
     /**

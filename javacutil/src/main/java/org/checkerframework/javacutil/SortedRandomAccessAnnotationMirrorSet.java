@@ -4,7 +4,7 @@ import java.util.*;
 import javax.lang.model.element.AnnotationMirror;
 
 public class SortedRandomAccessAnnotationMirrorSet
-        implements List<AnnotationMirror>, Set<AnnotationMirror>, RandomAccess {
+        implements List<AnnotationMirror>, Set<AnnotationMirror>, RandomAccess, RandomAccessSet<AnnotationMirror> {
 
     private final Comparator<AnnotationMirror> comparator;
     private TreeSet<AnnotationMirror> baseline;
@@ -16,9 +16,9 @@ public class SortedRandomAccessAnnotationMirrorSet
         baseline = new TreeSet<>(comparator);
     }
 
-    public SortedRandomAccessAnnotationMirrorSet(Collection<? extends AnnotationMirror> values) {
+    public SortedRandomAccessAnnotationMirrorSet(Collection<? extends AnnotationMirror> copy) {
         this();
-        this.addAll(values);
+        this.addAll(copy);
     }
 
     private void assertSame() {
