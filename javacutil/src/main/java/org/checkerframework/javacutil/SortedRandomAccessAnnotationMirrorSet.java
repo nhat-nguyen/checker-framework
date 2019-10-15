@@ -10,30 +10,17 @@ public class SortedRandomAccessAnnotationMirrorSet
                 RandomAccessSet<AnnotationMirror> {
 
     private final Comparator<AnnotationMirror> comparator;
-    private TreeSet<AnnotationMirror> baseline;
     private ArrayList<AnnotationMirror> shadowList;
 
     public SortedRandomAccessAnnotationMirrorSet() {
         comparator = AnnotationUtils.annotationOrdering();
         shadowList = new ArrayList<>();
-        baseline = new TreeSet<>(comparator);
     }
 
-    public SortedRandomAccessAnnotationMirrorSet(Collection<? extends AnnotationMirror> copy) {
-        this();
-        this.addAll(copy);
-    }
-
-    private void assertSame() {
-        assert baseline.size() == shadowList.size();
-        Iterator<AnnotationMirror> itBaseline = baseline.iterator();
-        Iterator<AnnotationMirror> itNewImpl = shadowList.iterator();
-        while (itBaseline.hasNext()) {
-            AnnotationMirror a = itBaseline.next();
-            AnnotationMirror b = itNewImpl.next();
-            assert AnnotationUtils.areSame(a, b);
-        }
-    }
+//    public SortedRandomAccessAnnotationMirrorSet(Collection<? extends AnnotationMirror> copy) {
+//        this();
+//        this.addAll(copy);
+//    }
 
     @Override
     public int size() {
@@ -67,47 +54,31 @@ public class SortedRandomAccessAnnotationMirrorSet
 
     @Override
     public boolean add(AnnotationMirror annotationMirror) {
-        baseline.add(annotationMirror);
-
         int initialSize = shadowList.size();
         int index = Collections.binarySearch(shadowList, annotationMirror, comparator);
         // Already found, don't insert the same value
         if (index >= 0) {
-            assertSame();
             return false;
         }
 
         // index = -(insertion point) - 1
         int insertionPoint = -index - 1;
         shadowList.add(insertionPoint, annotationMirror);
-        assert shadowList.size() == initialSize + 1;
-
-        assertSame();
-
         return true;
     }
 
     @Override
     public boolean remove(Object o) {
-        baseline.remove(o);
-
         if (!(o instanceof AnnotationMirror)) {
-            assertSame();
             return false;
         }
 
-        int initialSize = shadowList.size();
         int index = Collections.binarySearch(shadowList, (AnnotationMirror) o, comparator);
         if (index < 0) {
-            assertSame();
             return false;
         }
 
         shadowList.remove(index);
-        assert shadowList.size() == initialSize - 1;
-
-        assertSame();
-
         return true;
     }
 
@@ -128,9 +99,6 @@ public class SortedRandomAccessAnnotationMirrorSet
         for (AnnotationMirror anno : collection) {
             changed = add(anno);
         }
-
-        assertSame();
-
         return changed;
     }
 
@@ -147,15 +115,12 @@ public class SortedRandomAccessAnnotationMirrorSet
         for (Object val : collection) {
             changed = remove(val);
         }
-
-        assertSame();
         return changed;
     }
 
     // O(n^2)
     @Override
     public boolean retainAll(Collection<?> collection) {
-        baseline.retainAll(collection);
         ArrayList<AnnotationMirror> toRetain = new ArrayList<>(collection.size());
         for (Object el : collection) {
             int index = indexOf(el);
@@ -170,16 +135,12 @@ public class SortedRandomAccessAnnotationMirrorSet
 
         toRetain.sort(comparator);
         shadowList = toRetain;
-
-        assertSame();
-
         return true;
     }
 
     @Override
     public void clear() {
         shadowList.clear();
-        baseline.clear();
     }
 
     @Override
@@ -243,5 +204,128 @@ public class SortedRandomAccessAnnotationMirrorSet
     @Override
     public String toString() {
         return shadowList.toString();
+    }
+
+    public static Unmodifiable unmodifiable(Set<AnnotationMirror> set) {
+        return new Unmodifiable((SortedRandomAccessAnnotationMirrorSet) set);
+    }
+
+    private static class Unmodifiable extends SortedRandomAccessAnnotationMirrorSet {
+        private final SortedRandomAccessAnnotationMirrorSet set;
+        private Unmodifiable(SortedRandomAccessAnnotationMirrorSet set) {
+            this.set = set;
+        }
+
+        @Override
+        public int size() {
+            return set.size();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return set.isEmpty();
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            return set.contains(o);
+        }
+
+        @Override
+        public Iterator<AnnotationMirror> iterator() {
+            return set.iterator();
+        }
+
+        @Override
+        public Object[] toArray() {
+            return set.toArray();
+        }
+
+        @Override
+        public <T> T[] toArray(T[] ts) {
+            return set.toArray(ts);
+        }
+
+
+        @Override
+        public AnnotationMirror get(int i) {
+            return set.get(i);
+        }
+
+        @Override
+        public int indexOf(Object o) {
+            return set.indexOf(o);
+        }
+
+        @Override
+        public boolean containsAll(Collection<?> collection) {
+            return set.containsAll(collection);
+        }
+
+        @Override
+        public ListIterator<AnnotationMirror> listIterator() {
+            return set.listIterator();
+        }
+
+        @Override
+        public ListIterator<AnnotationMirror> listIterator(int i) {
+            return set.listIterator(i);
+        }
+
+        @Override
+        public List<AnnotationMirror> subList(int i1, int i2) {
+            return set.subList(i1, i2);
+        }
+
+        @Override
+        public Spliterator<AnnotationMirror> spliterator() {
+            return set.spliterator();
+        }
+
+        @Override
+        public String toString() {
+            return set.toString();
+        }
+
+        @Override
+        public boolean add(AnnotationMirror annotationMirror) {
+            throw new RuntimeException("Illegal operation");
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            throw new RuntimeException("Illegal operation");
+        }
+
+        @Override
+        public boolean addAll(Collection<? extends AnnotationMirror> collection) {
+            throw new RuntimeException("Illegal operation");
+        }
+
+        @Override
+        public boolean addAll(int i, Collection<? extends AnnotationMirror> collection) {
+            throw new RuntimeException("Illegal operation");
+        }
+
+        @Override
+        public boolean removeAll(Collection<?> collection) {
+            throw new RuntimeException("Illegal operation");
+        }
+
+        @Override
+        public boolean retainAll(Collection<?> collection) {
+            throw new RuntimeException("Illegal operation");
+        }
+
+        @Override
+        public void clear() {
+            throw new RuntimeException("Illegal operation");
+        }
+
+
+        @Override
+        public int lastIndexOf(Object o) {
+            throw new RuntimeException("Not implemented");
+        }
     }
 }
