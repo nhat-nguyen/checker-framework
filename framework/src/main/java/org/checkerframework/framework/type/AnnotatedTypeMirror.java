@@ -285,7 +285,7 @@ public abstract class AnnotatedTypeMirror {
      * @return a unmodifiable set of the annotations on this
      */
     public final Set<AnnotationMirror> getAnnotations() {
-        return SortedRandomAccessAnnotationMirrorSet.unmodifiable(annotations);
+        return Collections.unmodifiableSet(annotations);
     }
 
     /**

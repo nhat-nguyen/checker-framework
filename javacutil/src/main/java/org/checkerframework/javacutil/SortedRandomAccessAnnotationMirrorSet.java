@@ -3,18 +3,37 @@ package org.checkerframework.javacutil;
 import java.util.*;
 import javax.lang.model.element.AnnotationMirror;
 
+import static org.checkerframework.javacutil.AnnotationUtils.areSame;
+
 public class SortedRandomAccessAnnotationMirrorSet
         implements List<AnnotationMirror>,
-                Set<AnnotationMirror>,
-                RandomAccess,
-                RandomAccessSet<AnnotationMirror> {
+        Set<AnnotationMirror>,
+        RandomAccess,
+        RandomAccessSet<AnnotationMirror> {
 
     private final Comparator<AnnotationMirror> comparator;
     private ArrayList<AnnotationMirror> shadowList;
+    private TreeSet<AnnotationMirror> base = new TreeSet<>(AnnotationUtils.annotationOrdering());
 
     public SortedRandomAccessAnnotationMirrorSet() {
         comparator = AnnotationUtils.annotationOrdering();
         shadowList = new ArrayList<>();
+    }
+
+    private void assertsame() {
+        if (shadowList.size() != base.size()) {
+            assert false;
+        }
+        Iterator<AnnotationMirror> iter1 = shadowList.iterator();
+        Iterator<AnnotationMirror> iter2 = base.iterator();
+
+        while (iter1.hasNext()) {
+            AnnotationMirror anno1 = iter1.next();
+            AnnotationMirror anno2 = iter2.next();
+            if (anno1 != anno2) {
+                assert false;
+            }
+        }
     }
 
     //    public SortedRandomAccessAnnotationMirrorSet(Collection<? extends AnnotationMirror> copy)
@@ -25,16 +44,19 @@ public class SortedRandomAccessAnnotationMirrorSet
 
     @Override
     public int size() {
+        assert shadowList.size() == base.size();
         return shadowList.size();
     }
 
     @Override
     public boolean isEmpty() {
+        assert shadowList.isEmpty() == base.isEmpty();
         return shadowList.isEmpty();
     }
 
     @Override
     public boolean contains(Object o) {
+        assert (indexOf(o) != -1) == base.contains(o);
         return indexOf(o) != -1;
     }
 
@@ -45,42 +67,80 @@ public class SortedRandomAccessAnnotationMirrorSet
 
     @Override
     public Object[] toArray() {
+        // assert false;
         return shadowList.toArray();
     }
 
     @Override
     public <T> T[] toArray(T[] ts) {
+        // assert false;
         return shadowList.toArray(ts);
     }
 
-    @Override
-    public boolean add(AnnotationMirror annotationMirror) {
-        int initialSize = shadowList.size();
+    private boolean add(AnnotationMirror annotationMirror, boolean addbase) {
+        boolean ret = false;
+        if (addbase) {
+            ret = base.add(annotationMirror);
+        }
         int index = Collections.binarySearch(shadowList, annotationMirror, comparator);
         // Already found, don't insert the same value
         if (index >= 0) {
+            if (addbase) {
+                assertsame();
+                assert ret == false;
+            }
             return false;
         }
 
         // index = -(insertion point) - 1
         int insertionPoint = -index - 1;
         shadowList.add(insertionPoint, annotationMirror);
+        if (addbase) {
+            assertsame();
+            assert  ret == true;
+        }
         return true;
     }
 
-    @Override
-    public boolean remove(Object o) {
+    private boolean remove(Object o, boolean removebase) {
+        boolean ret = false;
+        if (removebase) {
+            ret = base.remove(o);
+        }
+        // assert false;
         if (!(o instanceof AnnotationMirror)) {
+            if (removebase) {
+                assertsame();
+                assert ret == false;
+            }
             return false;
         }
 
         int index = Collections.binarySearch(shadowList, (AnnotationMirror) o, comparator);
         if (index < 0) {
+            if (removebase) {
+                assertsame();
+                assert ret == false;
+            }
             return false;
         }
 
         shadowList.remove(index);
+        if (removebase) {
+            assertsame();
+            assert ret == true;
+        }
         return true;
+    }
+
+    @Override
+    public boolean add(AnnotationMirror annotationMirror) {
+        return add(annotationMirror, true);
+    }
+
+    @Override
+    public boolean remove(Object o) {
+        return remove(o, true);
     }
 
     @Override
@@ -94,15 +154,20 @@ public class SortedRandomAccessAnnotationMirrorSet
     }
 
     // O(n^2)
+    // TODO: recheck
     @Override
     public boolean addAll(Collection<? extends AnnotationMirror> collection) {
+        boolean ret = base.addAll(collection);
         boolean changed = false;
         for (AnnotationMirror anno : collection) {
-            changed = add(anno);
+            changed = add(anno, false) || changed;
         }
+        assertsame();
+        assert ret == changed;
         return changed;
     }
 
+    // TODO: recheck
     @Override
     public boolean addAll(int i, Collection<? extends AnnotationMirror> collection) {
         // TODO: This is illegal
@@ -112,16 +177,20 @@ public class SortedRandomAccessAnnotationMirrorSet
     // O(n^2)
     @Override
     public boolean removeAll(Collection<?> collection) {
+        boolean ret = base.removeAll(collection);
         boolean changed = false;
         for (Object val : collection) {
-            changed = remove(val);
+            changed = remove(val, false) || changed;
         }
+        assertsame();
+        assert  ret == changed;
         return changed;
     }
 
     // O(n^2)
     @Override
     public boolean retainAll(Collection<?> collection) {
+         assert false;
         ArrayList<AnnotationMirror> toRetain = new ArrayList<>(collection.size());
         for (Object el : collection) {
             int index = indexOf(el);
@@ -141,11 +210,14 @@ public class SortedRandomAccessAnnotationMirrorSet
 
     @Override
     public void clear() {
+//        assert false;
         shadowList.clear();
+        base.clear();
     }
 
     @Override
     public AnnotationMirror get(int i) {
+        assert false;
         return shadowList.get(i);
     }
 
@@ -184,27 +256,50 @@ public class SortedRandomAccessAnnotationMirrorSet
 
     @Override
     public ListIterator<AnnotationMirror> listIterator() {
+         assert false;
         return shadowList.listIterator();
     }
 
     @Override
     public ListIterator<AnnotationMirror> listIterator(int i) {
+         assert false;
         return shadowList.listIterator(i);
     }
 
     @Override
     public List<AnnotationMirror> subList(int i1, int i2) {
+         assert false;
         return shadowList.subList(i1, i2);
     }
 
     @Override
     public Spliterator<AnnotationMirror> spliterator() {
+         assert false;
         return shadowList.spliterator();
     }
 
     @Override
     public String toString() {
         return shadowList.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        assert false;
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Collection)) {
+            return false;
+        }
+
+        if (o instanceof SortedRandomAccessAnnotationMirrorSet) {
+            return containsAll((Collection<?>) o);
+        } else {
+            return containsAll((Collection<?>) o);
+        }
     }
 
     public static Unmodifiable unmodifiable(Set<AnnotationMirror> set) {

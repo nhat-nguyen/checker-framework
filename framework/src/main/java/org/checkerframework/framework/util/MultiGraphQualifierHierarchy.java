@@ -186,7 +186,7 @@ public class MultiGraphQualifierHierarchy extends QualifierHierarchy {
         // no need for copying as f.supertypes has no mutable references to it
         // TODO: also make the Set of supertypes immutable?
         this.supertypesDirect =
-                SortedRandomAccessAnnotationMirrorMap.<Set<AnnotationMirror>>unmodifiable(
+                Collections.unmodifiableMap(
                         f.supertypesDirect);
 
         // Calculate the transitive closure
@@ -205,16 +205,16 @@ public class MultiGraphQualifierHierarchy extends QualifierHierarchy {
 
         finish(this, supertypesTransitive, this.polyQualifiers, newtops, newbottoms, args);
 
-        this.tops = SortedRandomAccessAnnotationMirrorSet.unmodifiable(newtops);
-        this.bottoms = SortedRandomAccessAnnotationMirrorSet.unmodifiable(newbottoms);
+        this.tops = Collections.unmodifiableSet(newtops);
+        this.bottoms = Collections.unmodifiableSet(newbottoms);
         // TODO: make polyQualifiers immutable also?
 
         this.supertypesTransitive =
-                SortedRandomAccessAnnotationMirrorMap.<Set<AnnotationMirror>>unmodifiable(
+                Collections.unmodifiableMap(
                         supertypesTransitive);
         Set<AnnotationMirror> typeQualifiers = AnnotationUtils.createAnnotationSet();
         typeQualifiers.addAll(supertypesTransitive.keySet());
-        this.typeQualifiers = SortedRandomAccessAnnotationMirrorSet.unmodifiable(typeQualifiers);
+        this.typeQualifiers = Collections.unmodifiableSet(typeQualifiers);
         // System.out.println("MGH: " + this);
     }
 
@@ -793,7 +793,7 @@ public class MultiGraphQualifierHierarchy extends QualifierHierarchy {
             // add all of current super's super into superset
             supers.addAll(findAllSupers(superAnno, supertypes, allSupersSoFar));
         }
-        allSupersSoFar.put(anno, SortedRandomAccessAnnotationMirrorSet.unmodifiable(supers));
+        allSupersSoFar.put(anno, Collections.unmodifiableSet(supers));
         return supers;
     }
 
