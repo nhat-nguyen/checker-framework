@@ -185,9 +185,7 @@ public class MultiGraphQualifierHierarchy extends QualifierHierarchy {
         super();
         // no need for copying as f.supertypes has no mutable references to it
         // TODO: also make the Set of supertypes immutable?
-        this.supertypesDirect =
-                Collections.unmodifiableMap(
-                        f.supertypesDirect);
+        this.supertypesDirect = Collections.unmodifiableMap(f.supertypesDirect);
 
         // Calculate the transitive closure
         Map<AnnotationMirror, Set<AnnotationMirror>> supertypesTransitive =
@@ -209,9 +207,7 @@ public class MultiGraphQualifierHierarchy extends QualifierHierarchy {
         this.bottoms = Collections.unmodifiableSet(newbottoms);
         // TODO: make polyQualifiers immutable also?
 
-        this.supertypesTransitive =
-                Collections.unmodifiableMap(
-                        supertypesTransitive);
+        this.supertypesTransitive = Collections.unmodifiableMap(supertypesTransitive);
         Set<AnnotationMirror> typeQualifiers = AnnotationUtils.createAnnotationSet();
         typeQualifiers.addAll(supertypesTransitive.keySet());
         this.typeQualifiers = Collections.unmodifiableSet(typeQualifiers);
