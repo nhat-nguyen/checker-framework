@@ -185,7 +185,9 @@ public class MultiGraphQualifierHierarchy extends QualifierHierarchy {
         super();
         // no need for copying as f.supertypes has no mutable references to it
         // TODO: also make the Set of supertypes immutable?
-        this.supertypesDirect = Collections.unmodifiableMap(f.supertypesDirect);
+        this.supertypesDirect =
+                SortedRandomAccessAnnotationMirrorMap.<Set<AnnotationMirror>>unmodifiable(
+                        f.supertypesDirect);
 
         // Calculate the transitive closure
         Map<AnnotationMirror, Set<AnnotationMirror>> supertypesTransitive =
@@ -203,14 +205,16 @@ public class MultiGraphQualifierHierarchy extends QualifierHierarchy {
 
         finish(this, supertypesTransitive, this.polyQualifiers, newtops, newbottoms, args);
 
-        this.tops = Collections.unmodifiableSet(newtops);
-        this.bottoms = Collections.unmodifiableSet(newbottoms);
+        this.tops = SortedRandomAccessAnnotationMirrorSet.unmodifiable(newtops);
+        this.bottoms = SortedRandomAccessAnnotationMirrorSet.unmodifiable(newbottoms);
         // TODO: make polyQualifiers immutable also?
 
-        this.supertypesTransitive = Collections.unmodifiableMap(supertypesTransitive);
+        this.supertypesTransitive =
+                SortedRandomAccessAnnotationMirrorMap.<Set<AnnotationMirror>>unmodifiable(
+                        supertypesTransitive);
         Set<AnnotationMirror> typeQualifiers = AnnotationUtils.createAnnotationSet();
         typeQualifiers.addAll(supertypesTransitive.keySet());
-        this.typeQualifiers = Collections.unmodifiableSet(typeQualifiers);
+        this.typeQualifiers = SortedRandomAccessAnnotationMirrorSet.unmodifiable(typeQualifiers);
         // System.out.println("MGH: " + this);
     }
 
@@ -789,7 +793,7 @@ public class MultiGraphQualifierHierarchy extends QualifierHierarchy {
             // add all of current super's super into superset
             supers.addAll(findAllSupers(superAnno, supertypes, allSupersSoFar));
         }
-        allSupersSoFar.put(anno, Collections.unmodifiableSet(supers));
+        allSupersSoFar.put(anno, SortedRandomAccessAnnotationMirrorSet.unmodifiable(supers));
         return supers;
     }
 
