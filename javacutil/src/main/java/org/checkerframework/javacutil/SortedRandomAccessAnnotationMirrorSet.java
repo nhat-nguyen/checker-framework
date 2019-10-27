@@ -146,7 +146,6 @@ public class SortedRandomAccessAnnotationMirrorSet
 
     @Override
     public AnnotationMirror get(int i) {
-        assert false;
         return shadowList.get(i);
     }
 
@@ -231,6 +230,16 @@ public class SortedRandomAccessAnnotationMirrorSet
         Collection<?> c = (Collection<?>) o;
         if (c.size() != this.size()) {
             return false;
+        }
+
+        if (c instanceof SortedRandomAccessAnnotationMirrorSet) {
+            SortedRandomAccessAnnotationMirrorSet s = (SortedRandomAccessAnnotationMirrorSet) c;
+            for (int i = 0; i < s.size(); i++) {
+                if (comparator.compare(get(i), s.get(i)) != 0) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         return containsAll(c);
