@@ -6,6 +6,7 @@ import com.sun.source.util.TreePath;
 import com.sun.source.util.TreeScanner;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * TreePathCacher is a TreeScanner that creates and caches a TreePath for a target Tree.
@@ -17,6 +18,9 @@ import java.util.Map;
 public class TreePathCacher extends TreeScanner<TreePath, Tree> {
 
     private final Map<Tree, TreePath> foundPaths = new HashMap<>(32);
+
+    private final Function<Tree, TreePath> computeValue =
+            (Tree key) -> new TreePath(this.path, key);
 
     /**
      * The TreePath of the previous tree scanned. It is always set back to null after a scan has
@@ -52,8 +56,9 @@ public class TreePathCacher extends TreeScanner<TreePath, Tree> {
      *     compilation root
      */
     public TreePath getPath(CompilationUnitTree root, Tree target) {
-        if (foundPaths.containsKey(target)) {
-            return foundPaths.get(target);
+        TreePath cachedPath = foundPaths.get(target);
+        if (cachedPath != null) {
+            return cachedPath;
         }
 
         TreePath path = new TreePath(root);
@@ -87,17 +92,16 @@ public class TreePathCacher extends TreeScanner<TreePath, Tree> {
     /** Scan a single node. The current path is updated for the duration of the scan. */
     @Override
     public TreePath scan(Tree tree, Tree target) {
-        TreePath prev = path;
-        if (tree != null && foundPaths.get(tree) == null) {
-            TreePath current = new TreePath(path, tree);
-            foundPaths.put(tree, current);
-            path = current;
+        TreePath prev = this.path;
+
+        if (tree == null) {
+            this.path = null;
         } else {
-            this.path = foundPaths.get(tree);
+            this.path = foundPaths.computeIfAbsent(tree, this.computeValue);
         }
 
         if (tree == target) {
-            throw new Result(path);
+            throw new Result(this.path);
         }
         try {
             return super.scan(tree, target);

@@ -516,7 +516,7 @@ public class FlowExpressions {
 
         @Override
         public int hashCode() {
-            return Objects.hash(getField(), getReceiver());
+            return Objects.hash(field, receiver);
         }
 
         @Override
