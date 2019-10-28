@@ -12,12 +12,7 @@ import com.sun.source.util.TreePath;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -87,6 +82,8 @@ public abstract class InitializationAnnotatedTypeFactory<
     /** Cache for the initialization annotations. */
     protected final Set<Class<? extends Annotation>> initAnnos;
 
+    protected final Set<String> initAnnoNames;
+
     /**
      * Create a new InitializationAnnotatedTypeFactory.
      *
@@ -95,20 +92,27 @@ public abstract class InitializationAnnotatedTypeFactory<
     public InitializationAnnotatedTypeFactory(BaseTypeChecker checker) {
         super(checker, true);
 
-        Set<Class<? extends Annotation>> tempInitAnnos = new LinkedHashSet<>();
-
         INITIALIZED = AnnotationBuilder.fromClass(elements, Initialized.class);
         UNDER_INITALIZATION = AnnotationBuilder.fromClass(elements, UnderInitialization.class);
         NOT_ONLY_INITIALIZED = AnnotationBuilder.fromClass(elements, NotOnlyInitialized.class);
         FBCBOTTOM = AnnotationBuilder.fromClass(elements, FBCBottom.class);
         UNKNOWN_INITIALIZATION = AnnotationBuilder.fromClass(elements, UnknownInitialization.class);
 
+        Set<Class<? extends Annotation>> tempInitAnnos = new LinkedHashSet<>(4);
         tempInitAnnos.add(UnderInitialization.class);
         tempInitAnnos.add(Initialized.class);
         tempInitAnnos.add(UnknownInitialization.class);
         tempInitAnnos.add(FBCBottom.class);
 
         initAnnos = Collections.unmodifiableSet(tempInitAnnos);
+
+        Set<String> tempInitAnnoNames = new HashSet<>(4);
+        tempInitAnnoNames.add(AnnotationUtils.annotationName(UNKNOWN_INITIALIZATION));
+        tempInitAnnoNames.add(AnnotationUtils.annotationName(UNDER_INITALIZATION));
+        tempInitAnnoNames.add(AnnotationUtils.annotationName(INITIALIZED));
+        tempInitAnnoNames.add(AnnotationUtils.annotationName(FBCBOTTOM));
+
+        initAnnoNames = Collections.unmodifiableSet(tempInitAnnoNames);
 
         // No call to postInit() because this class is abstract.
         // Its subclasses must call postInit().
@@ -126,10 +130,7 @@ public abstract class InitializationAnnotatedTypeFactory<
      */
     protected boolean isInitializationAnnotation(AnnotationMirror anno) {
         assert anno != null;
-        return AnnotationUtils.areSameByName(anno, UNKNOWN_INITIALIZATION)
-                || AnnotationUtils.areSameByName(anno, UNDER_INITALIZATION)
-                || AnnotationUtils.areSameByName(anno, INITIALIZED)
-                || AnnotationUtils.areSameByName(anno, FBCBOTTOM);
+        return initAnnoNames.contains(AnnotationUtils.annotationName(anno));
     }
 
     /*
