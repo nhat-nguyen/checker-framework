@@ -46,13 +46,13 @@ import com.github.javaparser.ast.type.WildcardType;
 import java.io.InputStream;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
@@ -79,6 +79,7 @@ import org.checkerframework.framework.type.visitor.AnnotatedTypeMerger;
 import org.checkerframework.javacutil.AnnotationBuilder;
 import org.checkerframework.javacutil.AnnotationUtils;
 import org.checkerframework.javacutil.BugInCF;
+import org.checkerframework.javacutil.CollectionUtils;
 import org.checkerframework.javacutil.ElementUtils;
 import org.checkerframework.javacutil.Pair;
 
@@ -93,8 +94,8 @@ import org.checkerframework.javacutil.Pair;
 public class StubParser {
 
     /** Maps a stub file name to its AST. */
-    private static final ConcurrentHashMap<String, StubUnit> STUB_UNIT_CACHE =
-            new ConcurrentHashMap<>();
+    private static final Map<String, StubUnit> STUB_UNIT_CACHE =
+            Collections.synchronizedMap(CollectionUtils.createLRUCache(500));
 
     /**
      * Whether to print warnings about types/members that were not found. The warning is about
@@ -471,9 +472,11 @@ public class StubParser {
             stubDebug(String.format("parsing stub file %s", filename));
         }
 
-        stubUnit =
-                STUB_UNIT_CACHE.computeIfAbsent(
-                        filename, (String key) -> StaticJavaParser.parseStubUnit(inputStream));
+        stubUnit = STUB_UNIT_CACHE.get(filename);
+        if (stubUnit == null) {
+            stubUnit = StaticJavaParser.parseStubUnit(inputStream);
+            STUB_UNIT_CACHE.put(filename, stubUnit);
+        }
 
         // getAllStubAnnotations() also modifies importedConstants and importedTypes. This should
         // be refactored to be nicer.
