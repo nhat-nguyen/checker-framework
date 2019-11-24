@@ -52,6 +52,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
@@ -90,6 +91,10 @@ import org.checkerframework.javacutil.Pair;
  * itis walks the Stub Parser's AST to create/collect types and declaration annotations.
  */
 public class StubParser {
+
+    /** Maps a stub file name to its AST. */
+    private static final ConcurrentHashMap<String, StubUnit> STUB_UNIT_CACHE =
+            new ConcurrentHashMap<>();
 
     /**
      * Whether to print warnings about types/members that were not found. The warning is about
@@ -181,7 +186,8 @@ public class StubParser {
      * Create a new StubParser object, which will parse and extract annotations from the given stub
      * file.
      *
-     * @param filename name of stub file, used only for diagnostic messages
+     * @param filename name of stub file, used for caching of stub file's AST and diagnostic
+     *     messages
      * @param atypeFactory AnnotatedtypeFactory to use
      * @param processingEnv ProcessingEnviroment to use
      * @param isJdkAsStub whether or not the stub file is a part of the jdk.
@@ -398,7 +404,8 @@ public class StubParser {
      * Parse a stub file that is a part of the annotated jdk and side-effects the last two
      * arguments.
      *
-     * @param filename name of stub file, used only for diagnostic messages
+     * @param filename name of stub file, used for caching of stub file's AST and diagnostic
+     *     messages
      * @param inputStream of stub file to parse
      * @param atypeFactory AnnotatedtypeFactory to use
      * @param processingEnv ProcessingEnviroment to use
@@ -463,7 +470,10 @@ public class StubParser {
         if (debugStubParser) {
             stubDebug(String.format("parsing stub file %s", filename));
         }
-        stubUnit = StaticJavaParser.parseStubUnit(inputStream);
+
+        stubUnit =
+                STUB_UNIT_CACHE.computeIfAbsent(
+                        filename, (String key) -> StaticJavaParser.parseStubUnit(inputStream));
 
         // getAllStubAnnotations() also modifies importedConstants and importedTypes. This should
         // be refactored to be nicer.
